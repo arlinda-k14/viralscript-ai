@@ -10,13 +10,14 @@ is a landing page and an output-contract preview — it does not call an AI back
 ## Structure
 
 ```
-.viralscript-ai/
-  skills/      # Skill definitions (markdown)
-  config/      # Loader configuration (JSON)
-  memory/      # Persistent context (JSON)
+public/          # Netlify publish root
+  index.html     # Landing page
+  skills/        # Skill definitions (markdown)
+  config/        # Loader configuration (JSON)
+  memory/        # Persistent context (JSON)
+  README.md      # Runtime directory docs, mirrored from ~/.viralscript-ai/
 
-index.html     # Netlify landing page
-netlify.toml   # Static publish config and security headers
+netlify.toml     # Static publish config and security headers
 ```
 
 ## Skills
@@ -31,7 +32,7 @@ netlify.toml   # Static publish config and security headers
 
 ```bash
 git clone https://github.com/arlinda-k14/viralscript-ai.git
-cp -R viralscript-ai/{skills,config,memory} ~/.viralscript-ai/
+cp -R viralscript-ai/public/{skills,config,memory} ~/.viralscript-ai/
 ```
 
 `~/.viralscript-ai/README.md` documents the runtime directory on its own.
@@ -39,7 +40,7 @@ cp -R viralscript-ai/{skills,config,memory} ~/.viralscript-ai/
 ## Preview the site
 
 ```bash
-open index.html
+open public/index.html
 ```
 
 ## Deploy
@@ -63,5 +64,5 @@ Accuracy rules, enforced before output:
 
 ## License
 
-`skills/humanizer.md` is MIT licensed, by [@blader](https://github.com/blader/humanizer).
+`public/skills/humanizer.md` is MIT licensed, by [@blader](https://github.com/blader/humanizer).
 Everything else in this repository is yours.
