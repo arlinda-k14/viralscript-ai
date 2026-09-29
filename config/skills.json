@@ -1,0 +1,27 @@
+{
+  "skills": [
+    {
+      "name": "skill_builder",
+      "path": "skills/skill_builder.md",
+      "description": "Design, document, and register new skills for the AIOS.",
+      "enabled": true
+    },
+    {
+      "name": "social_thread_writer",
+      "path": "skills/social_thread_writer.md",
+      "description": "Convert a technical article, GitHub repo, or raw markdown into a five-post educational thread for X or LinkedIn in English or Albanian.",
+      "platforms": ["X", "LinkedIn"],
+      "languages": ["English", "Albanian"],
+      "enabled": true
+    },
+    {
+      "name": "humanizer",
+      "path": "skills/humanizer.md",
+      "description": "Rewrite AI-sounding text so it reads like the writer without changing what it says. Targets 26 patterns from Wikipedia's Signs of AI writing.",
+      "license": "MIT",
+      "version": "3.1.0",
+      "source": "https://github.com/blader/humanizer",
+      "enabled": true
+    }
+  ]
+}

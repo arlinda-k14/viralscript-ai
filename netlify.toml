@@ -1,0 +1,27 @@
+[build]
+  publish = "."
+  command = ""
+
+[build.environment]
+  NODE_VERSION = "22"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# Fonts are served from Google Fonts, so a strict CSP here is unnecessary
+# and would break them. Content-Security-Policy intentionally omitted.
+
+[[redirects]]
+  from = "/skills/*"
+  to = "/index.html"
+  status = 200

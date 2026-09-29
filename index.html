@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ViralScript AI — AIOS Skill Runtime</title>
+<meta name="description" content="ViralScript AI turns technical articles, GitHub repositories, and raw markdown into five-post educational social threads.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0A0A0C;
+  --panel:#121218;
+  --panel-2:#16161E;
+  --line:rgba(99,102,241,.18);
+  --line-soft:rgba(255,255,255,.06);
+  --indigo:#6366F1;
+  --cyan:#06B6D4;
+  --violet:#8B5CF6;
+  --text:#E8E8F0;
+  --muted:#8B8BA0;
+  --dim:#5C5C72;
+  --ok:#22D3A5;
+  --warn:#F5A524;
+  --bad:#F4526B;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --r:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--sans);
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+  position:relative;
+}
+body::before{
+  content:"";position:fixed;inset:0;z-index:-2;
+  background:
+    radial-gradient(760px 420px at 12% -8%,rgba(99,102,241,.20),transparent 62%),
+    radial-gradient(680px 400px at 88% 4%,rgba(139,92,246,.16),transparent 60%),
+    radial-gradient(620px 520px at 50% 108%,rgba(6,182,212,.10),transparent 66%);
+}
+body::after{
+  content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.35;
+  background-image:linear-gradient(rgba(255,255,255,.022) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(255,255,255,.022) 1px,transparent 1px);
+  background-size:64px 64px;
+  mask-image:radial-gradient(ellipse 78% 62% at 50% 32%,#000 42%,transparent 100%);
+}
+.wrap{width:min(1180px,92vw);margin-inline:auto}
+
+/* ---------- header ---------- */
+header{
+  position:sticky;top:0;z-index:50;
+  backdrop-filter:blur(18px) saturate(150%);
+  -webkit-backdrop-filter:blur(18px) saturate(150%);
+  background:rgba(10,10,12,.72);
+  border-bottom:1px solid var(--line-soft);
+}
+.bar{display:flex;align-items:center;gap:16px;height:66px}
+.brand{display:flex;align-items:center;gap:11px;font-weight:700;letter-spacing:-.02em;font-size:1.03rem}
+.mark{
+  width:32px;height:32px;border-radius:9px;display:grid;place-items:center;
+  font-family:var(--mono);font-size:.82rem;font-weight:700;color:#fff;
+  background:linear-gradient(140deg,var(--indigo),var(--violet) 55%,var(--cyan));
+  box-shadow:0 0 22px -4px rgba(99,102,241,.75);
+}
+.brand small{font-family:var(--mono);font-size:.63rem;font-weight:500;color:var(--dim);letter-spacing:.09em;text-transform:uppercase;margin-left:2px}
+nav{margin-left:auto;display:flex;gap:22px;align-items:center}
+nav a{color:var(--muted);text-decoration:none;font-size:.86rem;font-weight:500;transition:color .18s}
+nav a:hover{color:var(--text)}
+
+.runtime{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:var(--mono);font-size:.7rem;letter-spacing:.03em;
+  padding:6px 13px;border-radius:999px;color:#B9F5E4;
+  background:rgba(34,211,165,.09);
+  border:1px solid rgba(34,211,165,.30);
+  box-shadow:0 0 20px -8px rgba(34,211,165,.55);
+  white-space:nowrap;
+}
+.pulse{width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 0 rgba(34,211,165,.65);animation:pulse 2.1s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(34,211,165,.6)}70%{box-shadow:0 0 0 8px rgba(34,211,165,0)}100%{box-shadow:0 0 0 0 rgba(34,211,165,0)}}
+
+/* ---------- hero ---------- */
+.hero{padding:88px 0 54px;text-align:center;position:relative}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);
+  font-size:.69rem;letter-spacing:.14em;text-transform:uppercase;color:#A9B0FF;
+  padding:7px 15px;border-radius:999px;margin-bottom:26px;
+  background:rgba(99,102,241,.11);border:1px solid rgba(99,102,241,.30);
+}
+h1{
+  font-size:clamp(2.4rem,6.4vw,4.15rem);font-weight:800;line-height:1.03;
+  letter-spacing:-.045em;margin-bottom:22px;
+}
+.grad{
+  background:linear-gradient(100deg,#8B8BFF 0%,var(--violet) 34%,var(--cyan) 78%);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+}
+.lede{max-width:660px;margin:0 auto 34px;color:var(--muted);font-size:1.06rem}
+.cta{display:flex;gap:13px;justify-content:center;flex-wrap:wrap}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:var(--sans);font-size:.9rem;font-weight:600;
+  padding:12px 24px;border-radius:11px;border:1px solid transparent;
+  text-decoration:none;cursor:pointer;transition:transform .16s,box-shadow .16s,background .16s;
+}
+.btn-primary{color:#fff;background:linear-gradient(120deg,var(--indigo),var(--violet) 60%,var(--cyan));box-shadow:0 8px 30px -10px rgba(99,102,241,.9)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 14px 38px -10px rgba(99,102,241,1)}
+.btn-ghost{color:var(--text);background:rgba(255,255,255,.04);border-color:var(--line)}
+.btn-ghost:hover{background:rgba(99,102,241,.10);border-color:rgba(99,102,241,.42);transform:translateY(-2px)}
+
+/* ---------- panels ---------- */
+.panel{
+  background:rgba(18,18,24,.68);
+  backdrop-filter:blur(16px) saturate(140%);
+  -webkit-backdrop-filter:blur(16px) saturate(140%);
+  border:1px solid var(--line);border-radius:var(--r);
+  box-shadow:0 0 40px -18px rgba(99,102,241,.45),0 18px 50px -30px rgba(0,0,0,.9);
+}
+section{padding:30px 0}
+.sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:20px;flex-wrap:wrap}
+.sec-head h2{font-size:1.32rem;font-weight:700;letter-spacing:-.02em}
+.sec-head p{color:var(--dim);font-size:.87rem;font-family:var(--mono)}
+
+/* ---------- terminal ---------- */
+.term{overflow:hidden}
+.term-bar{display:flex;align-items:center;gap:8px;padding:11px 15px;border-bottom:1px solid var(--line-soft);background:rgba(255,255,255,.022)}
+.dot{width:11px;height:11px;border-radius:50%}
+.dot.r{background:#FF5F57}.dot.y{background:#FEBC2E}.dot.g{background:#28C840}
+.term-title{margin-left:8px;font-family:var(--mono);font-size:.74rem;color:var(--dim)}
+.term-body{padding:17px 19px;font-family:var(--mono);font-size:.8rem;line-height:1.85;overflow-x:auto}
+.t-ok{color:var(--ok)}.t-cyan{color:var(--cyan)}.t-violet{color:var(--violet)}
+.t-dim{color:var(--dim)}.t-bold{color:#fff}
+.caret{display:inline-block;width:8px;height:15px;background:var(--cyan);vertical-align:-2px;animation:blink 1.15s steps(2) infinite}
+@keyframes blink{50%{opacity:0}}
+
+.badges{display:flex;flex-wrap:wrap;gap:10px;padding:0 19px 19px}
+.badge{
+  display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:.72rem;
+  padding:7px 13px;border-radius:9px;color:#C6C9F5;
+  background:rgba(99,102,241,.10);border:1px solid rgba(99,102,241,.28);
+}
+.badge .dotm{width:6px;height:6px;border-radius:50%;background:var(--ok);box-shadow:0 0 8px var(--ok)}
+.badge.v{background:rgba(139,92,246,.10);border-color:rgba(139,92,246,.30);color:#D7C2FF}
+.badge.v .dotm{background:var(--violet);box-shadow:0 0 8px var(--violet)}
+.badge .meta{color:var(--dim);font-size:.66rem}
+
+/* ---------- workspace ---------- */
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:22px;align-items:start}
+@media(max-width:940px){.grid{grid-template-columns:1fr}}
+
+.field{margin:0 0 16px}
+label.lbl{display:block;font-family:var(--mono);font-size:.7rem;letter-spacing:.11em;text-transform:uppercase;color:var(--dim);margin-bottom:9px}
+textarea{
+  width:100%;min-height:172px;resize:vertical;
+  background:rgba(0,0,0,.42);color:var(--text);
+  border:1px solid var(--line);border-radius:11px;padding:14px 15px;
+  font-family:var(--mono);font-size:.8rem;line-height:1.7;outline:none;transition:border-color .18s,box-shadow .18s;
+}
+textarea:focus{border-color:rgba(6,182,212,.55);box-shadow:0 0 0 3px rgba(6,182,212,.12)}
+textarea::placeholder{color:#4A4A5C}
+
+.seg{display:inline-flex;padding:4px;gap:4px;background:rgba(0,0,0,.42);border:1px solid var(--line);border-radius:11px}
+.seg button{
+  font-family:var(--mono);font-size:.77rem;font-weight:500;color:var(--muted);
+  padding:8px 17px;border:0;border-radius:8px;background:transparent;cursor:pointer;transition:.18s;
+}
+.seg button:hover{color:var(--text)}
+.seg button[aria-pressed="true"]{
+  color:#fff;background:linear-gradient(120deg,var(--indigo),var(--violet));
+  box-shadow:0 0 18px -6px rgba(99,102,241,.9);
+}
+.ctl-row{display:flex;gap:26px;flex-wrap:wrap;align-items:flex-start;margin-bottom:4px}
+.hint{font-size:.79rem;color:var(--dim);margin-top:9px;font-family:var(--mono)}
+.counter{float:right;font-size:.68rem;color:var(--dim);letter-spacing:0;text-transform:none}
+.counter b{color:var(--cyan);font-weight:500}
+
+/* ---------- thread preview ---------- */
+.thread-head{display:flex;align-items:center;gap:12px;padding:15px 19px;border-bottom:1px solid var(--line-soft);flex-wrap:wrap}
+.thread-head h3{font-size:.95rem;font-weight:600}
+.capinfo{margin-left:auto;font-family:var(--mono);font-size:.7rem;color:var(--dim)}
+.capinfo b{color:var(--cyan)}
+.posts{padding:9px}
+.post{padding:15px 16px;border-radius:11px;border:1px solid transparent;transition:.18s}
+.post+.post{border-top:1px solid rgba(255,255,255,.045)}
+.post:hover{background:rgba(99,102,241,.05);border-color:rgba(99,102,241,.18)}
+.post-top{display:flex;align-items:center;gap:10px;margin-bottom:9px;flex-wrap:wrap}
+.tag{
+  font-family:var(--mono);font-size:.65rem;letter-spacing:.05em;text-transform:uppercase;
+  padding:3.5px 9px;border-radius:6px;font-weight:500;
+  background:rgba(6,182,212,.12);border:1px solid rgba(6,182,212,.30);color:#8EE7F7;
+}
+.tag.p2{background:rgba(139,92,246,.12);border-color:rgba(139,92,246,.30);color:#CDB4FF}
+.tag.p3{background:rgba(99,102,241,.14);border-color:rgba(99,102,241,.32);color:#B6B9FF}
+.tag.p4{background:rgba(245,165,36,.12);border-color:rgba(245,165,36,.30);color:#FBD08A}
+.tag.p5{background:rgba(34,211,165,.12);border-color:rgba(34,211,165,.30);color:#8FEBCE}
+.post-role{font-size:.78rem;color:var(--muted);font-weight:500}
+.post-num{margin-left:auto;font-family:var(--mono);font-size:.7rem;color:var(--dim)}
+.post-body{font-size:.9rem;line-height:1.72;color:#D6D6E4;white-space:pre-wrap}
+.post-foot{display:flex;align-items:center;gap:11px;margin-top:11px}
+.bar-track{flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.07);overflow:hidden}
+.bar-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--indigo),var(--cyan));transition:width .3s ease,background .3s}
+.bar-fill.warn{background:linear-gradient(90deg,var(--warn),#FBBF24)}
+.bar-fill.bad{background:linear-gradient(90deg,var(--bad),#FB7185)}
+.cc{font-family:var(--mono);font-size:.69rem;color:var(--dim);min-width:56px;text-align:right}
+.cc.ok{color:var(--ok)}.cc.warn{color:var(--warn)}.cc.bad{color:var(--bad)}
+
+.copy-row{padding:15px 19px;border-top:1px solid var(--line-soft);display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.note{font-family:var(--mono);font-size:.68rem;color:var(--dim);flex:1;min-width:190px}
+.sample-flag{
+  font-family:var(--mono);font-size:.65rem;letter-spacing:.05em;text-transform:uppercase;
+  color:#FBD08A;background:rgba(245,165,36,.10);border:1px solid rgba(245,165,36,.28);
+  padding:3px 8px;border-radius:6px;margin-left:auto
+}
+
+/* ---------- code window ---------- */
+.code{margin-top:22px;overflow:hidden}
+pre{
+  margin:0;padding:19px;font-family:var(--mono);font-size:.78rem;line-height:1.8;
+  overflow-x:auto;color:#C7C7D8;
+}
+.k{color:#8B5CF6}.s{color:#7DD3FC}.n{color:#F5A524}.b{color:#22D3A5}.p{color:#5C5C72}
+
+/* ---------- cards ---------- */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(238px,1fr));gap:16px}
+.card{padding:20px 21px;border-radius:var(--r);border:1px solid var(--line-soft);background:rgba(18,18,24,.5);transition:.2s}
+.card:hover{border-color:rgba(99,102,241,.36);transform:translateY(-3px);box-shadow:0 14px 34px -20px rgba(99,102,241,.8)}
+.card h4{font-size:.95rem;margin-bottom:8px;font-weight:600;display:flex;align-items:center;gap:9px}
+.card p{font-size:.85rem;color:var(--muted);line-height:1.65}
+.card .ic{font-family:var(--mono);font-size:.9rem;color:var(--cyan)}
+
+footer{border-top:1px solid var(--line-soft);margin-top:40px;padding:30px 0 46px;text-align:center}
+footer p{font-size:.83rem;color:var(--dim);font-family:var(--mono);line-height:1.9}
+footer a{color:var(--cyan);text-decoration:none}
+footer a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <div class="brand">
+      <div class="mark">VS</div>
+      <div>ViralScript AI <small>AIOS</small></div>
+    </div>
+    <nav>
+      <a href="#runtime">Runtime</a>
+      <a href="#workspace">Workspace</a>
+      <a href="#config">Config</a>
+    </nav>
+    <div class="runtime"><span class="pulse"></span>AIOS Runtime: Ready ⚡</div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+
+    <div class="hero">
+      <div class="eyebrow"><span class="pulse"></span>skills/2 loaded · config/skills.json</div>
+      <h1>Technical content,<br><span class="grad">rewritten to land.</span></h1>
+      <p class="lede">ViralScript AI reads an article, a repository, or raw markdown and returns a
+      five-post educational thread. Character caps enforced, claims verified, nothing invented.</p>
+      <div class="cta">
+        <a href="#workspace" class="btn btn-primary">Open Workspace</a>
+        <a href="https://github.com/arlinda-k14/viralscript-ai" class="btn btn-ghost">View Source</a>
+      </div>
+    </div>
+
+    <section id="runtime">
+      <div class="sec-head">
+        <h2>Runtime</h2>
+        <p>~/ .viralscript-ai — boot sequence</p>
+      </div>
+      <div class="panel term">
+        <div class="term-bar">
+          <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+          <span class="term-title">aios — runtime</span>
+        </div>
+        <div class="term-body">
+<div><span class="t-dim">$</span> aios boot --config ~/.viralscript-ai/config/skills.json</div>
+<div><span class="t-ok">✓</span> memory/context.json <span class="t-dim">loaded</span></div>
+<div><span class="t-ok">✓</span> skills/ scanned <span class="t-cyan">2 manifests found</span></div>
+<div><span class="t-ok">✓</span> social_thread_writer <span class="t-dim">ready</span> <span class="t-cyan">5-post pipeline</span></div>
+<div><span class="t-ok">✓</span> humanizer <span class="t-dim">ready</span> <span class="t-violet">26 patterns · v3.1.0</span></div>
+<div><span class="t-ok">✓</span> platform adapters <span class="t-dim">x=280ch · linkedin=800ch</span></div>
+<div><span class="t-ok">✓</span> accuracy gate <span class="t-bold">armed</span></div>
+<div class="t-dim">&nbsp;</div>
+<div><span class="t-cyan">▸</span> runtime status: <span class="t-bold">READY</span> <span class="caret"></span></div>
+        </div>
+        <div class="badges">
+          <span class="badge"><span class="dotm"></span>social_thread_writer <span class="meta">v1 · active</span></span>
+          <span class="badge v"><span class="dotm"></span>humanizer <span class="meta">v3.1.0 · MIT · active</span></span>
+          <span class="badge"><span class="dotm"></span>x_adapter <span class="meta">280 char cap</span></span>
+          <span class="badge"><span class="dotm"></span>linkedin_adapter <span class="meta">800 char cap</span></span>
+        </div>
+      </div>
+    </section>
+
+    <section id="workspace">
+      <div class="sec-head">
+        <h2>Workspace</h2>
+        <p>input → generate → 5 posts</p>
+      </div>
+      <div class="grid">
+
+        <div class="panel" style="padding:21px">
+          <div class="field">
+            <label class="lbl" for="src">Source</label>
+            <textarea id="src" spellcheck="false" placeholder="https://github.com/blader/humanizer
+
+…or paste a README / article in markdown.
+
+The generator reads the source, extracts the problem, the architecture and the install path, then drafts five posts."></textarea>
+            <div class="hint"><span class="counter" id="srcCount">0 / 0</span>carriage returns are not counted. Caps apply per post, not per thread.</div>
+          </div>
+
+          <div class="ctl-row">
+            <div class="field" style="margin:0">
+              <label class="lbl">Platform</label>
+              <div class="seg" id="platform">
+                <button data-v="X" aria-pressed="true">X</button>
+                <button data-v="LinkedIn" aria-pressed="false">LinkedIn</button>
+              </div>
+            </div>
+            <div class="field" style="margin:0">
+              <label class="lbl">Language</label>
+              <div class="seg" id="lang">
+                <button data-v="en" aria-pressed="true">English</button>
+                <button data-v="sq" aria-pressed="false">Albanian</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="hint" style="margin-top:16px">
+            The live generator runs inside your agent via the
+            <code style="color:#8EE7F7">social_thread_writer</code> skill. This page previews the
+            output contract and the enforcement.
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="thread-head">
+            <h3>Thread Preview</h3>
+            <span class="sample-flag">sample output</span>
+            <span class="capinfo">cap <b id="capLabel">280</b> / post</span>
+          </div>
+          <div class="posts" id="posts"></div>
+          <div class="copy-row">
+            <button class="btn btn-primary" id="copyBtn">Copy Thread</button>
+            <span class="note" id="copyNote">5 posts · counters recompute on platform change</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section id="config">
+      <div class="sec-head">
+        <h2>Registry</h2>
+        <p>config/skills.json</p>
+      </div>
+      <div class="panel code">
+        <div class="term-bar">
+          <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+          <span class="term-title">skills.json</span>
+        </div>
+<pre>{
+  <span class="k">"skills"</span>: [
+    {
+      <span class="k">"name"</span>: <span class="s">"social_thread_writer"</span>,
+      <span class="k">"path"</span>: <span class="s">"skills/social_thread_writer.md"</span>,
+      <span class="k">"platforms"</span>: [<span class="s">"X"</span>, <span class="s">"LinkedIn"</span>],
+      <span class="k">"languages"</span>: [<span class="s">"English"</span>, <span class="s">"Albanian"</span>],
+      <span class="k">"enabled"</span>: <span class="b">true</span>
+    },
+    {
+      <span class="k">"name"</span>: <span class="s">"humanizer"</span>,
+      <span class="k">"path"</span>: <span class="s">"skills/humanizer.md"</span>,
+      <span class="k">"license"</span>: <span class="s">"MIT"</span>,
+      <span class="k">"version"</span>: <span class="s">"3.1.0"</span>,
+      <span class="k">"source"</span>: <span class="s">"https://github.com/blader/humanizer"</span>,
+      <span class="k">"enabled"</span>: <span class="b">true</span>
+    }
+  ]
+}</pre>
+      </div>
+    </section>
+
+    <section>
+      <div class="sec-head">
+        <h2>What the runtime guarantees</h2>
+        <p>non-negotiables, enforced before output</p>
+      </div>
+      <div class="cards">
+        <div class="card">
+          <h4><span class="ic">01</span>No fabrication</h4>
+          <p>If extraction fails, is blocked, or hits a paywall, the run stops and asks for raw text. Unreachable sources never become plausible summaries.</p>
+        </div>
+        <div class="card">
+          <h4><span class="ic">02</span>Verified metrics only</h4>
+          <p>Every number in a post must appear in the source. No rounded figures, no recalled benchmarks, no invented speedups.</p>
+        </div>
+        <div class="card">
+          <h4><span class="ic">03</span>No outcome promises</h4>
+          <p>No guaranteed career results and no fixed learning timelines. Posts 1 to 4 carry no promotion at all.</p>
+        </div>
+        <div class="card">
+          <h4><span class="ic">04</span>Terms kept exact</h4>
+          <p>Protocols and algorithms keep their industry name, followed by a plain-language gloss the reader can use immediately.</p>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>
+      ViralScript AI · AIOS runtime · <span id="yr">2026</span><br>
+      Skills: <a href="https://github.com/blader/humanizer">humanizer</a> by @blader (MIT) ·
+      <a href="https://github.com/arlinda-k14/viralscript-ai">source</a>
+    </p>
+  </div>
+</footer>
+
+<script>
+const THREADS = {
+  en: [
+    { tag:"Hook",        cls:"",   text:"Every AI writing course teaches you to add: prompts, style guides, tone presets. The faster fix is subtractive. Delete 6 patterns. A model picks the most likely next token, so it defaults to the blandest line that fits everyone. Removing that default is the job." },
+    { tag:"Discovery",   cls:"p2", text:"The discovery: Wikipedia's Signs of AI writing is a catalogue of the default choices models make. humanizer turns it into 26 patterns ranked by strength. Five justify an edit on one sighting. A dash used once is normal. A text full of them is not." },
+    { tag:"Mechanism",   cls:"p3", text:"The mechanism is four steps. Mark every tell, strongest first. Draft the rewrite without treating the original structure as fixed. Read the draft aloud and check that no fact, name or number was added or dropped. Then write the final version." },
+    { tag:"Application", cls:"p4", text:"Use it on a draft you already wrote. Paste two paragraphs of your own writing first and it matches your sentence length, punctuation and quirks. Point it at a file and it edits prose only, leaving code, data and frontmatter alone." },
+    { tag:"Action",      cls:"p5", text:"Remove 6 patterns instead of adding 30 tricks. In a blind test judges preferred its rewrite 16 of 16 times. It edits for readers, not detectors. Credit @blader, MIT. Structured training is how people build tech careers. See Creative Hub Kosovo. #AIWriting #DevCommunity" }
+  ],
+  sq: [
+    { tag:"Hook",        cls:"",   text:"Modeli zgjedh tokenin më të mundshëm, prandaj përdor gjithmonë rreshtin më të bland që përshtatet me të gjithë. Zgjidhja më e shpejtë nuk është të shtosh, por të heqësh 6 modele. Kjo është e gjithë puna." },
+    { tag:"Discovery",   cls:"p2", text:"Zbulimi: Signs of AI writing i Wikipedia-s është katalogu i zgjedhjeve që modelet bëjnë. humanizer i kthen në 26 modele, të renditura sipas forcës. 5 prej tyre justifikojnë një edit me një shikim të vetëm. Një shirit i vetëm është normale." },
+    { tag:"Mechanism",   cls:"p3", text:"Mekanizmi ka 4 hapa. Shëno çdo shenjë, më të forta së pari. Shkruaj versionin e ri pa e marrë strukturën origjinale si fikse. Lexoje me zë të lartë dhe kontrollo që asnjë fakt ose numër s'u shtua e asnjë s'u zhvillua. Pastaj shkruaj versionin përfundimtar." },
+    { tag:"Application", cls:"p4", text:"Përdore mbi draftin që ke shkruar vetë. Ngjite dy paragrafë të tu dhe ai e përshtat gjatësinë e fjaliëve, shkronjën e zakonet e tua. Tregoji një skedar dhe ai ndryshon vetëm prozën, duke lënë kodin, të dhënat dhe frontmatter-in." },
+    { tag:"Action",      cls:"p5", text:"Hiq 6 modele në vend të shto 30 truke. Në provë të verbër, gjyqësit preferuan versionin e ri 16 nga 16 herë. Ai editon për lexuesit, jo për detektorët. Falem @blader, MIT. Trajnimi i strukturuar ndërton karrierë në tech. Shiko Creative Hub Kosovo. #AIWriting #DevCommunity" }
+  ]
+};
+
+const CAPS = { X: 280, LinkedIn: 800 };
+let platform = "X";
+let lang = "en";
+
+const postsEl = document.getElementById("posts");
+const capLabel = document.getElementById("capLabel");
+
+function grade(n, cap){
+  const r = n / cap;
+  if (r > 1) return "bad";
+  if (r > 0.92) return "warn";
+  return "ok";
+}
+
+function render(){
+  const cap = CAPS[platform];
+  capLabel.textContent = cap;
+  postsEl.innerHTML = "";
+  THREADS[lang].forEach((p, i) => {
+    const n = p.text.length;
+    const g = grade(n, cap);
+    const pct = Math.min(100, (n / cap) * 100);
+    const el = document.createElement("div");
+    el.className = "post";
+    el.innerHTML =
+      '<div class="post-top">' +
+        '<span class="tag ' + p.cls + '">Post ' + (i + 1) + ' · ' + p.tag + '</span>' +
+        '<span class="post-num">0' + (i + 1) + ' / 05</span>' +
+      '</div>' +
+      '<div class="post-body"></div>' +
+      '<div class="post-foot">' +
+        '<div class="bar-track"><div class="bar-fill ' + g + '" style="width:' + pct + '%"></div></div>' +
+        '<span class="cc ' + g + '">' + n + ' / ' + cap + '</span>' +
+      '</div>';
+    el.querySelector(".post-body").textContent = p.text;
+    postsEl.appendChild(el);
+  });
+}
+
+function wire(segId, onPick){
+  const seg = document.getElementById(segId);
+  seg.addEventListener("click", e => {
+    const b = e.target.closest("button");
+    if (!b) return;
+    seg.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+    onPick(b.dataset.v);
+    render();
+  });
+}
+wire("platform", v => platform = v);
+wire("lang", v => lang = v);
+
+const src = document.getElementById("src");
+const srcCount = document.getElementById("srcCount");
+src.addEventListener("input", () => {
+  srcCount.textContent = src.value.length + " / " + CAPS[platform] * 5;
+});
+
+document.getElementById("copyBtn").addEventListener("click", async function(){
+  const text = THREADS[lang].map((p, i) => "Post " + (i + 1) + " — " + p.tag + "\n" + p.text).join("\n\n---\n\n");
+  const note = document.getElementById("copyNote");
+  try {
+    await navigator.clipboard.writeText(text);
+    note.textContent = "copied · 5 posts · " + CAPS[platform] + " char cap";
+  } catch (e) {
+    note.textContent = "clipboard blocked — select the posts and copy manually";
+  }
+});
+
+document.getElementById("yr").textContent = new Date().getFullYear();
+render();
+</script>
+</body>
+</html>
